@@ -1,0 +1,29 @@
+# Render blueprint: New + Blueprint, pick this repo. Both services deploy on the free plan.
+# After the first deploy, set RAG_URL on agent-service to the public URL of rag-service
+# (for example https://agentdesk-rag.onrender.com) if it differs, then redeploy.
+services:
+  - type: web
+    name: agentdesk-rag
+    runtime: docker
+    dockerfilePath: ./rag_service/Dockerfile
+    dockerContext: ./rag_service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8001"
+
+  - type: web
+    name: agentdesk
+    runtime: docker
+    dockerfilePath: ./agent_service/Dockerfile
+    dockerContext: ./agent_service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: RAG_URL
+        value: https://agentdesk-rag.onrender.com
+      - key: GROQ_API_KEY
+        sync: false

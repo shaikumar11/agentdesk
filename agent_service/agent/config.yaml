@@ -1,0 +1,23 @@
+# Agent definition: instructions, tools, guardrails. Edit here, no code change needed.
+name: agentdesk
+model: openai/gpt-oss-120b
+max_steps: 4
+instructions: |
+  You are the CloudDesk support assistant.
+  Answer only from the documentation returned by the search_docs tool.
+  Cite every fact with its source in square brackets, for example [rate-limits].
+  If the documentation does not contain the answer, say so and do not guess.
+  Use calculate for arithmetic and create_ticket only when the user asks to raise a ticket.
+tools:
+  - search_docs
+  - create_ticket
+  - calculate
+guardrails:
+  max_input_chars: 600
+  min_retrieval_score: 0.1
+  min_grounding: 0.5
+  injection_patterns:
+    - ignore (all |any )?(previous|prior|above) instructions
+    - (reveal|show|print).{0,30}(system prompt|instructions)
+    - you are now
+    - disregard .{0,30}(rules|instructions)

@@ -1,0 +1,23 @@
+services:
+  rag-service:
+    build: ./rag_service
+    ports: ["8001:8001"]
+    volumes: ["chroma-data:/data/chroma"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  agent-service:
+    build: ./agent_service
+    ports: ["8000:8000"]
+    environment:
+      RAG_URL: http://rag-service:8001
+      GROQ_API_KEY: ${GROQ_API_KEY:-}   # optional, offline planner is used when empty
+    depends_on:
+      rag-service:
+        condition: service_healthy
+
+volumes:
+  chroma-data:
